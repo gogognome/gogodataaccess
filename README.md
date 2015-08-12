@@ -133,13 +133,38 @@ By just implementing these two methods your DAO is basically finished. It inheri
     findAllWhere("name like 'J%'") // get a list of all authors whose name start with a J
     find(nameValuePairs) // get a list of all authors with matching name value pairs
 
-### Implement Data Access Objects (DAOs) for other queries
+### Implement Data Access Objects (DAOs) for non-domain classes
 
 If you want to get data from the database that does not correspond to domain classes, you can consider
 building a subclass of `AbstractDAO`. Your class inherits many methods. Methods to insert or update records
 in the database. And many methods to execute a query and transform the result set to a list, set or map.
-You can use `Function`s to transform the result set to the type of the list or set or to transform the result
-set to a key or value for a map. Check out the `AbstractDAOTest` for samples of this class.
+
+Here is example code that shows the power of `AbstractDAO`:
+
+    public class AuthorDAO {
+
+        // Insert a record in the author table.
+        public void createAuthor(long id, String name) throws SQLException {
+            insert("author", new NameValuePairs().add("id", id).add("name", name));
+        }
+        
+        // Updates a record while returning the number of modified rows
+        public int updateAuthor(long id, String newName) throws SQLException {
+            return execute("update author set name=? where id=?", name, id).getNumberModifiedRows();
+        }
+        
+        // Find all author names using a pivot
+        public List<String> findNames(List<Long> ids) throws SQLException {
+            return execute("select name from author where id in (?)", ids).toList(r -> r.getString(1));
+        }
+
+        // Find a HashMap from id to name for all authors
+        public HashMap<Long, String> getIdToName() throws SQLException {
+            return execute("select id, name from author").toHashMap(r -> r.getLong(1), r -> r.getString(2));
+        }
+    }
+
+Check out the `AbstractDAOTest` for more examples of this class.
 
 ## What is the status of this project?
 
