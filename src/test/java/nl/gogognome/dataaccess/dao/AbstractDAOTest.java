@@ -1,11 +1,14 @@
 package nl.gogognome.dataaccess.dao;
 
 import nl.gogognome.dataaccess.DataAccessException;
+import nl.gogognome.dataaccess.transaction.*;
 import org.junit.Before;
 import org.junit.Test;
 
+import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.*;
+import java.util.function.Supplier;
 
 import static java.util.Arrays.asList;
 import static java.util.Collections.*;
@@ -247,6 +250,42 @@ public class AbstractDAOTest extends BaseInMemTransactionTest {
         assertEquals(asList("xxx", "xxx", "xxx"), testDAO.execute("select name from test").toList(r -> r.getString(1)));
     }
 
+    @Test
+    public void creatingDAOShouldNotGetConnection() throws SQLException, DataAccessException {
+        Supplier<Transaction> oldTransactionCreator = CurrentTransaction.transactionCreator;
+        TransactionWithCounter.nrOfCalls = 0;
+        try {
+            CurrentTransaction.transactionCreator = () -> new TransactionWithCounter();
+            CurrentTransaction.create();
+
+            new TestDAO();
+
+            assertEquals(0, TransactionWithCounter.nrOfCalls);
+        } finally {
+            CurrentTransaction.close(false);
+            CurrentTransaction.transactionCreator = oldTransactionCreator;
+        }
+    }
+
+    @Test
+    public void daoShouldCallGetConnectionOncePerQuery() throws SQLException, DataAccessException {
+        Supplier<Transaction> oldTransactionCreator = CurrentTransaction.transactionCreator;
+        TransactionWithCounter.nrOfCalls = 0;
+        try {
+            CurrentTransaction.transactionCreator = () -> new TransactionWithCounter();
+            CurrentTransaction.create();
+
+            testDAO.insert(1, "bla");
+            testDAO.insert(2, "blabla");
+            testDAO.insert(3, "blablabla");
+
+            assertEquals(3, TransactionWithCounter.nrOfCalls);
+        } finally {
+            CurrentTransaction.close(false);
+            CurrentTransaction.transactionCreator = oldTransactionCreator;
+        }
+    }
+
     private class TestDAO extends AbstractDAO {
 
         public TestDAO() throws DataAccessException {
@@ -277,6 +316,17 @@ public class AbstractDAOTest extends BaseInMemTransactionTest {
                 }
             }
             throw new SQLException("No value found with id " + id);
+        }
+    }
+
+    private static class TransactionWithCounter extends CompositeDatasourceTransaction {
+
+        public static int nrOfCalls;
+
+        @Override
+        public Connection getConnection(String datasourceName) throws DataAccessException {
+            nrOfCalls++;
+            return super.getConnection(datasourceName);
         }
     }
 }
