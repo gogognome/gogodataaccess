@@ -165,8 +165,3 @@ Here is example code that shows the power of `AbstractDAO`:
     }
 
 Check out the `AbstractDAOTest` for more examples of this class.
-
-## What is the status of this project?
-
-I just started writing the first classes. I expect to finish a complete and working library in a couple of weeks, 
-so keep an eye on this project if you are interested.
