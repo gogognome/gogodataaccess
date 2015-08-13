@@ -136,13 +136,23 @@ By just implementing these two methods your DAO is basically finished. It inheri
 ### Implement Data Access Objects (DAOs) for non-domain classes
 
 If you want to get data from the database that does not correspond to domain classes, you can consider
-building a subclass of `AbstractDAO`. Your class inherits many methods. Methods to insert or update records
-in the database. And many methods to execute a query and transform the result set to a list, set or map.
+building a subclass of `AbstractDAO`. Your class inherits many methods:
+ 
+* Methods to insert or update records
+* Methods to run an SQL script
+* Many methods to execute a query and transform the result set to a list, set or map
 
 Here is example code that shows the power of `AbstractDAO`:
 
     public class AuthorDAO {
 
+        // Run a script to create the table. The file 'create_author.sql' must be present in the classpath
+        // in the same package as AuthorDAO. The script may consist of multiple SQL statements separated by a semicolon.
+        // The script may include comments and empty lines. Statements are allowed to be spread over multiple lines.
+        public void createTable() throws SQLException, IOException {
+            runScript(new InputStreamReader(getClass().getResourceAsStream("create_author.sql")), true);
+        }
+        
         // Insert a record in the author table.
         public void createAuthor(long id, String name) throws SQLException {
             insert("author", new NameValuePairs().add("id", id).add("name", name));
