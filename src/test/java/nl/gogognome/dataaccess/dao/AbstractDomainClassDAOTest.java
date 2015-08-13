@@ -1,11 +1,11 @@
 package nl.gogognome.dataaccess.dao;
 
 import nl.gogognome.dataaccess.DataAccessException;
-import nl.gogognome.dataaccess.transaction.CompositeDatasourceTransaction;
-import nl.gogognome.dataaccess.transaction.CurrentTransaction;
 import org.junit.Before;
 import org.junit.Test;
 
+import java.io.IOException;
+import java.io.InputStreamReader;
 import java.sql.SQLException;
 import java.util.HashSet;
 import java.util.List;
@@ -23,7 +23,7 @@ public class AbstractDomainClassDAOTest extends BaseInMemTransactionTest {
     private BookDAO bookDAO;
 
     @Before
-    public void initDatabase() throws DataAccessException, SQLException {
+    public void initDatabase() throws DataAccessException, SQLException, IOException {
         new TableDAO().createTablesAndSequences();
         authorDAO = new AuthorDAO();
         bookDAO = new BookDAO();
@@ -370,20 +370,8 @@ public class AbstractDomainClassDAOTest extends BaseInMemTransactionTest {
             super("test");
         }
 
-        public void createTablesAndSequences() throws SQLException {
-            try (PreparedStatementWrapper statement = prepareStatement("create table author (id number, name varchar2(100), primary key(id))")) {
-                statement.execute();
-            }
-            try (PreparedStatementWrapper statement = prepareStatement("create table book (id number, title varchar2(100), author_id number, primary key(id), " +
-                    "foreign key (author_id) references author(id))")) {
-                statement.execute();
-            }
-            try (PreparedStatementWrapper statement = prepareStatement("create sequence author_sequence start with 1")) {
-                statement.execute();
-            }
-            try (PreparedStatementWrapper statement = prepareStatement("create sequence book_sequence start with 1")) {
-                statement.execute();
-            }
+        public void createTablesAndSequences() throws SQLException, IOException {
+            runScript(new InputStreamReader(getClass().getResourceAsStream("create_author_and_book.sql")), true);
         }
     }
 

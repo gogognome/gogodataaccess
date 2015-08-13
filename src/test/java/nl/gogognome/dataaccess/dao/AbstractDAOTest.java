@@ -5,6 +5,9 @@ import nl.gogognome.dataaccess.transaction.*;
 import org.junit.Before;
 import org.junit.Test;
 
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
+import java.io.InputStreamReader;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.*;
@@ -21,9 +24,9 @@ public class AbstractDAOTest extends BaseInMemTransactionTest {
     private TestDAO testDAO;
 
     @Before
-    public void initTable() throws DataAccessException, SQLException {
+    public void initTable() throws DataAccessException, SQLException, IOException {
         testDAO = new TestDAO();
-        testDAO.createTable();
+        testDAO.createTableAndSequence();
     }
 
     @Test
@@ -39,8 +42,6 @@ public class AbstractDAOTest extends BaseInMemTransactionTest {
 
     @Test
     public void getIntSequenceShouldGetNextValueOfSequence() throws DataAccessException, SQLException {
-        testDAO.createSequence();
-
         assertEquals(1, testDAO.getNextLongFromSequence("test_sequence"));
         assertEquals(2, testDAO.getNextLongFromSequence("test_sequence"));
         assertEquals(3, testDAO.getNextLongFromSequence("test_sequence"));
@@ -292,16 +293,12 @@ public class AbstractDAOTest extends BaseInMemTransactionTest {
             super("test");
         }
 
-        public void createTable() throws SQLException {
-            try (PreparedStatementWrapper statement = prepareStatement("create table test (id number, name varchar2(100))")) {
-                statement.execute();
-            }
-        }
+        public void createTableAndSequence() throws SQLException, IOException {
+            String script =
+                    "create table test (id number, name varchar2(100)); " +
+                    "create sequence test_sequence start with 1;";
 
-        public void createSequence() throws SQLException {
-            try (PreparedStatementWrapper statement = prepareStatement("create sequence test_sequence start with 1")) {
-                statement.execute();
-            }
+            runScript(new InputStreamReader(new ByteArrayInputStream(script.getBytes())), true);
         }
 
         public void insert(int id, String name) throws SQLException {

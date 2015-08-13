@@ -96,22 +96,20 @@ public class ScriptRunner {
                 if (originalAutoCommit != this.autoCommit) {
                     connection.setAutoCommit(this.autoCommit);
                 }
-                runScript(connection, reader);
+                runScriptIgnoringAutoCommit(reader);
             } finally {
                 connection.setAutoCommit(originalAutoCommit);
             }
         } catch (IOException | SQLException e) {
             throw e;
         } catch (Exception e) {
-            throw new RuntimeException("Error running script.  Cause: " + e, e);
+            throw new SQLException("Error running script.  Cause: " + e, e);
         }
     }
 
     /**
      * Runs an SQL script (read in using the Reader parameter) using the connection passed in
      *
-     * @param conn
-     *            - the connection to use for the script
      * @param reader
      *            - the source of the script
      * @throws SQLException
@@ -119,7 +117,7 @@ public class ScriptRunner {
      * @throws IOException
      *             if there is an error reading from the Reader
      */
-    private void runScript(Connection conn, Reader reader) throws IOException, SQLException {
+    private void runScriptIgnoringAutoCommit(Reader reader) throws IOException, SQLException {
         StringBuilder command = null;
         try {
             LineNumberReader lineReader = new LineNumberReader(reader);
@@ -138,7 +136,7 @@ public class ScriptRunner {
                 } else if (!fullLineDelimiter && trimmedLine.endsWith(getDelimiter()) || fullLineDelimiter && trimmedLine.equals(getDelimiter())) {
                     command.append(line.substring(0, line.lastIndexOf(getDelimiter())));
                     command.append(" ");
-                    Statement statement = conn.createStatement();
+                    Statement statement = connection.createStatement();
 
                     println(command);
                     executedCommands.add(command.toString());
@@ -156,8 +154,8 @@ public class ScriptRunner {
                         }
                     }
 
-                    if (autoCommit && !conn.getAutoCommit()) {
-                        conn.commit();
+                    if (autoCommit && !connection.getAutoCommit()) {
+                        connection.commit();
                     }
 
                     ResultSet rs = statement.getResultSet();
@@ -191,7 +189,7 @@ public class ScriptRunner {
                 }
             }
             if (!autoCommit) {
-                conn.commit();
+                connection.commit();
             }
         } catch (SQLException | IOException e) {
             e.fillInStackTrace();
@@ -199,7 +197,7 @@ public class ScriptRunner {
             printlnError(e);
             throw e;
         } finally {
-            conn.rollback();
+            connection.rollback();
             flush();
         }
     }

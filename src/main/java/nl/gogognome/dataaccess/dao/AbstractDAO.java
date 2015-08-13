@@ -2,7 +2,10 @@ package nl.gogognome.dataaccess.dao;
 
 import nl.gogognome.dataaccess.transaction.JdbcTransaction;
 import nl.gogognome.dataaccess.transaction.CurrentTransaction;
+import nl.gogognome.dataaccess.util.ScriptRunner;
 
+import java.io.IOException;
+import java.io.Reader;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
@@ -35,8 +38,7 @@ public class AbstractDAO {
      *             if a problem occurs
      */
     protected PreparedStatementWrapper prepareStatement(String query, Object... parameters) throws SQLException {
-        Connection connection = ((JdbcTransaction) CurrentTransaction.get()).getConnection(connectionParameters);
-        return PreparedStatementWrapper.preparedStatement(connection, query, parameters);
+        return PreparedStatementWrapper.preparedStatement(getConnection(), query, parameters);
     }
 
     /**
@@ -98,4 +100,11 @@ public class AbstractDAO {
         return new QueryBuilder(connectionParameters).execute(sqlStatement, parameters);
     }
 
+    protected void runScript(Reader reader, boolean autoCommit) throws SQLException, IOException {
+        new ScriptRunner(getConnection(), autoCommit, true).runScript(reader);
+    }
+
+    private Connection getConnection() throws SQLException {
+        return ((JdbcTransaction) CurrentTransaction.get()).getConnection(connectionParameters);
+    }
 }
