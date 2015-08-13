@@ -1,0 +1,2 @@
+// Invalid syntax (colon is missing)
+bla bla
