@@ -107,4 +107,5 @@ public class AbstractDAO {
     private Connection getConnection() throws SQLException {
         return ((JdbcTransaction) CurrentTransaction.get()).getConnection(connectionParameters);
     }
+
 }

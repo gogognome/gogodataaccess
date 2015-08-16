@@ -28,6 +28,10 @@ public class NameValuePairs implements Iterable<NameValuePair> {
         return this;
     }
 
+    public NameValuePairs add(String name, Enum<?> value) {
+        return add(name, String.class, value != null ? value.name() : null);
+    }
+
     public NameValuePairs addEmptyStringToNull(String name, String value) {
         add(name, String.class, value == null || value.isEmpty() ? null : value);
         return this;

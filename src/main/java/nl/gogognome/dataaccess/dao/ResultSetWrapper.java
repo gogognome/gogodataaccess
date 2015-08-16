@@ -1032,6 +1032,18 @@ public class ResultSetWrapper implements ResultSet {
         return toLocalDateTime(wrappedResultSet.getTimestamp(columnIndex));
     }
 
+    public <E extends Enum<E>> E getEnum(Class<E> enumClass, String columnLabel) throws SQLException {
+        return toEnum(enumClass, getString(columnLabel));
+    }
+
+    public <E extends Enum<E>> E getEnum(Class<E> enumClass, int columnIndex) throws SQLException {
+        return toEnum(enumClass, getString(columnIndex));
+    }
+
+    protected <E extends Enum<E>> E toEnum(Class<E> enumClass, String name) throws SQLException {
+        return name != null ? Enum.valueOf(enumClass, name) : null;
+    }
+
     public static LocalDateTime toLocalDateTime(java.util.Date date) {
         if (date == null) {
             return null;

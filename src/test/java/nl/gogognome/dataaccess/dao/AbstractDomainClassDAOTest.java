@@ -341,6 +341,24 @@ public class AbstractDomainClassDAOTest extends BaseInMemTransactionTest {
         assertEquals(1, authorDAO.count(new NameValuePairs().add("name", "Terry Pratchett")));
     }
 
+    @Test
+    public void domainClassWithEnumAttributeCanBeStoredAndFetched() throws SQLException {
+        Author tolkien = buildAuthor("J.R.R. Tolkien");
+        tolkien = authorDAO.create(tolkien);
+
+        Book lordOfTheRings = new Book();
+        lordOfTheRings.setTitle("The Lord of the Rings");
+        lordOfTheRings.setGenre(Book.Genre.FANTASY);
+        lordOfTheRings.setAuthorId(tolkien.getId());
+        lordOfTheRings = bookDAO.create(lordOfTheRings);
+
+        Book bookFromDatabas = bookDAO.get(lordOfTheRings.getId());
+        assertEquals(lordOfTheRings.getId(), bookFromDatabas.getId());
+        assertEquals(lordOfTheRings.getTitle(), bookFromDatabas.getTitle());
+        assertEquals(lordOfTheRings.getGenre(), bookFromDatabas.getGenre());
+        assertEquals(lordOfTheRings.getAuthorId(), bookFromDatabas.getAuthorId());
+    }
+
     private void assertAuthorEqual(Author author1, Author actualAuthor) {
         assertEquals(author1.getId(), actualAuthor.getId());
         assertEquals(author1.getName(), actualAuthor.getName());
@@ -405,12 +423,21 @@ public class AbstractDomainClassDAOTest extends BaseInMemTransactionTest {
 
         @Override
         protected Book getObjectFromResultSet(ResultSetWrapper result) throws SQLException {
-            return null;
+            Book book = new Book();
+            book.setId(result.getLong("id"));
+            book.setTitle(result.getString("title"));
+            book.setGenre(result.getEnum(Book.Genre.class, "genre"));
+            book.setAuthorId(result.getLong("author_id"));
+            return book;
         }
 
         @Override
-        protected NameValuePairs getNameValuePairs(Book domainObject) throws SQLException {
-            return null;
+        protected NameValuePairs getNameValuePairs(Book book) throws SQLException {
+            return new NameValuePairs()
+                    .add("id", book.getId())
+                    .add("title", book.getTitle())
+                    .add("genre", book.getGenre())
+                    .add("author_id", book.getAuthorId());
         }
     }
 }
