@@ -53,16 +53,19 @@ To rollback and close the transaction use:
 
 ### Another way to start and end transactions
 
-The class `RunTransaction` contains static methods that start and close a connection. The transaction will be
+The class `NewTransaction` contains static methods that start and close a connection. The transaction will be
 committed when no exception is thrown or rolled back when an exception is thrown.
 
 Here are some examples:
 
     // A transaction that does not return a value. Ideal for creating or updating records.
-    RunTransaction.withoutResult(() -> /* do something interesting here */);
+    NewTransaction.withoutResult(() -> /* do something interesting here */);
     
     // A transaction that returns a value.
-    String result = RunTransaction.withResult(() -> /* get some string out of the database */);
+    String result = NewTransaction.withResult(() -> /* get some string out of the database */);
+
+Use the class `RequireTransaction` if you want to reuse an a transaction if a transaction has already been started.
+If no transaction has been started then a new transaction will be created by the methods in this class.
 
 ### Implement Data Access Objects (DAOs) for domain classes
 

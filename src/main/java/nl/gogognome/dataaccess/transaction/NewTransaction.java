@@ -4,27 +4,13 @@ import nl.gogognome.dataaccess.DataAccessException;
 
 import java.sql.SQLException;
 
-public abstract class RunTransaction {
+public abstract class NewTransaction {
 
     public static void withoutResult(RunnableWithoutReturnValue runnable) throws DataAccessException {
         withResult(() -> {
             runnable.run();
             return null;
         });
-    }
-
-    public static <T> T readOnly(RunnableWithReturnValue<T> runnable) throws DataAccessException {
-        T result = null;
-        try {
-            CurrentTransaction.create();
-            result = runnable.run();
-        } catch (Exception e) {
-            handleException(e);
-        } finally {
-            CurrentTransaction.close(false);
-        }
-
-        return result;
     }
 
     public static <T> T withResult(RunnableWithReturnValue<T> runnable) throws DataAccessException {
