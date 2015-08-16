@@ -180,6 +180,18 @@ public class AbstractDomainClassDAOTest extends BaseInMemTransactionTest {
     }
 
     @Test
+    public void whenAuthorsExistFindAllWithListOfStringsInWhereClauseReturnsAllMatchingAuthors() throws SQLException {
+        Author author1 = authorDAO.create(buildAuthor("Terry Pratchett"));
+        Author author2 = authorDAO.create(buildAuthor("J.R.R. Tolkien"));
+        Author author3 = authorDAO.create(buildAuthor("Joanne Rowling"));
+
+        List<Author> expectedList = asList(author2, author3);
+        List<Author> actualAuthors = authorDAO.findAll(new NameValuePairs().add("name", author2.getName(), author3.getName()));
+
+        assertAuthorsEqual(expectedList, actualAuthors);
+    }
+
+    @Test
     public void whenAuthorDoesNotExistFindAllWithWhereClauseAndSortClauseReturnsEmptyList() throws SQLException {
         assertEquals(emptyList(), authorDAO.findAll(new NameValuePairs().add("name", "Terry Pratchett"), "id"));
     }

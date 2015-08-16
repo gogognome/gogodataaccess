@@ -91,6 +91,19 @@ public class NameValuePairs implements Iterable<NameValuePair> {
         return this;
     }
 
+    public NameValuePairs add(String name, Object... values) {
+        List<String> strings = new ArrayList<>(values.length);
+        for (Object value : values) {
+            if (value == null) {
+                strings.add(null);
+            } else {
+                strings.add(value.toString());
+            }
+        }
+        add(name, String.class, strings);
+        return this;
+    }
+
     public NameValuePairs addLiteral(String name, String value) {
         add(name, Literal.class, new Literal(value));
         return this;

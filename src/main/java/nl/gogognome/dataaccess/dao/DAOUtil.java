@@ -15,6 +15,8 @@ public class DAOUtil {
             sb.append(nvp.getName());
             if (nvp.getValue() == null) {
                 sb.append(" is null");
+            } else if (nvp.getValue() instanceof Iterable) {
+                sb.append(" in ").append(convertToPivotClause((Iterable<Object>) nvp.getValue()));
             } else {
                 sb.append("=?");
             }
@@ -24,8 +26,7 @@ public class DAOUtil {
         }
     }
 
-    public static <T> String convertToPivotClause(Iterable<T> items) throws SQLException {
-        int nrItems = 0;
+    public static <T> String convertToPivotClause(Iterable<T> items) {
         StringBuilder sb = new StringBuilder(1000);
         sb.append('(');
         for (T item : items) {
@@ -33,15 +34,6 @@ public class DAOUtil {
                 sb.append(',');
             }
             sb.append('\'').append(item).append('\'');
-
-            nrItems += 1;
-            if (nrItems == 1001) {
-                throw new SQLException("Cannot put more than 1000 elements in a pivot for Oracle databases.");
-            }
-        }
-
-        if (nrItems == 0) {
-            throw new SQLException("Cannot put zero elements in a pivot for Oracle databases.");
         }
         sb.append(')');
         return sb.toString();
@@ -49,7 +41,7 @@ public class DAOUtil {
 
     public static void setWhereClauseValues(PreparedStatementWrapper statement, NameValuePairs nameValuePairs, int index) throws SQLException {
         for (NameValuePair nvp : nameValuePairs) {
-            if (nvp.getValue() != null) {
+            if (nvp.getValue() != null && !(nvp.getValue() instanceof Iterable)) {
                 if (!nvp.getType().equals(Literal.class)) {
                     setStatementValue(statement, index, nvp.getType(), nvp.getValue());
                     index++;
