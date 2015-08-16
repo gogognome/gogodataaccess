@@ -1041,7 +1041,11 @@ public class ResultSetWrapper implements ResultSet {
     }
 
     protected <E extends Enum<E>> E toEnum(Class<E> enumClass, String name) throws SQLException {
-        return name != null ? Enum.valueOf(enumClass, name) : null;
+        try {
+            return name != null ? Enum.valueOf(enumClass, name) : null;
+        } catch (IllegalArgumentException e) {
+            throw new SQLException("The enumeration " + enumClass.getName() + " has no value " + name);
+        }
     }
 
     public static LocalDateTime toLocalDateTime(java.util.Date date) {
