@@ -251,6 +251,20 @@ public class AbstractDomainClassDAOTest extends BaseInMemTransactionTest {
     }
 
     @Test
+    public void whenAuthorDoesNotExistHasAnyReturnsFalse() throws SQLException {
+        assertFalse(authorDAO.hasAny());
+    }
+
+    @Test
+    public void whenAuthorsExistHasAnyReturnsTrue() throws SQLException {
+        Author author1 = authorDAO.create(buildAuthor("Terry Pratchett"));
+        Author author2 = authorDAO.create(buildAuthor("J.R.R. Tolkien"));
+        Author author3 = authorDAO.create(buildAuthor("Joanne Rowling"));
+
+        assertTrue(authorDAO.hasAny());
+    }
+
+    @Test
     public void whenNoAuthorsPresentDeleteWhereDeletesZeroAuthors() throws SQLException {
         assertEquals(0, authorDAO.deleteWhere(new NameValuePairs().add("name", "Terry Pratchett")));
     }

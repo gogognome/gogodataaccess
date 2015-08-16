@@ -136,6 +136,10 @@ public abstract class AbstractDomainClassDAO<D> extends AbstractDAO {
         return exists;
     }
 
+    public boolean hasAny() throws SQLException {
+        return execute("select count(1) from " + tableName).getFirst(r -> r.getInt(1) > 0);
+    }
+
     /**
      * Gets a domain object from the database.
      *
