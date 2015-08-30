@@ -13,7 +13,7 @@ import java.sql.SQLException;
 public class BaseInMemTransactionTest {
 
     private static int uniqueId = 0;
-    private Connection ensureInMemDatabaseExistsConnection;
+    private Connection connectionToKeepInMemoryDatabaseAlive;
 
     @Before
     public void createInMemoryDatabase() throws DataAccessException, SQLException {
@@ -22,7 +22,7 @@ public class BaseInMemTransactionTest {
         uniqueId++;
 
         CompositeDatasourceTransaction.registerDataSource("test", dataSource);
-        ensureInMemDatabaseExistsConnection = dataSource.getConnection();
+        connectionToKeepInMemoryDatabaseAlive = dataSource.getConnection();
 
         CurrentTransaction.create();
     }
@@ -30,8 +30,8 @@ public class BaseInMemTransactionTest {
     @After
     public void closeTransaction() throws DataAccessException, SQLException {
         try {
-            if (ensureInMemDatabaseExistsConnection != null) {
-                ensureInMemDatabaseExistsConnection.close();
+            if (connectionToKeepInMemoryDatabaseAlive != null) {
+                connectionToKeepInMemoryDatabaseAlive.close();
             }
         } finally {
             CurrentTransaction.close(false);
