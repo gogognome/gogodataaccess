@@ -6,7 +6,6 @@ import org.junit.Test;
 
 import java.io.IOException;
 import java.sql.SQLException;
-import java.util.Collections;
 import java.util.List;
 
 import static java.util.Arrays.asList;
@@ -16,24 +15,25 @@ import static org.junit.Assert.*;
 public class DatabaseMigratorDAOTest extends BaseInMemTransactionTest {
 
     private DatabaseMigratorDAO databaseMigratorDAO = new DatabaseMigratorDAO("test");
+    private String packageName = ("/" + getClass().getPackage().getName() + "/").replaceAll("[.]", "/");
 
     @Test
     public void loadEmptyFileShouldReturnEmptyList() throws IOException, DataAccessException {
-        List<Migration> migrations = databaseMigratorDAO.loadMigrationsFromResource(getClass().getResource("emptyFile.txt"));
+        List<Migration> migrations = databaseMigratorDAO.loadMigrationsFromResource(packageName + "emptyFile.txt");
 
         assertTrue(migrations.isEmpty());
     }
 
     @Test
     public void loadFileWithOnlyCommentsShouldReturnEmptyList() throws IOException, DataAccessException {
-        List<Migration> migrations = databaseMigratorDAO.loadMigrationsFromResource(getClass().getResource("fileWithOnlyComments.txt"));
+        List<Migration> migrations = databaseMigratorDAO.loadMigrationsFromResource(packageName + "fileWithOnlyComments.txt");
 
         assertTrue(migrations.isEmpty());
     }
 
     @Test
     public void loadFileWithValidSqlScriptShouldReturnOneMigration() throws IOException, DataAccessException {
-        List<Migration> migrations = databaseMigratorDAO.loadMigrationsFromResource(getClass().getResource("fileWithValidSqlScript.txt"));
+        List<Migration> migrations = databaseMigratorDAO.loadMigrationsFromResource(packageName + "fileWithValidSqlScript.txt");
 
         assertEquals(1, migrations.size());
         assertEquals(123L, migrations.get(0).getId());
@@ -42,7 +42,7 @@ public class DatabaseMigratorDAOTest extends BaseInMemTransactionTest {
 
     @Test
     public void loadFileWithValidMigrationClassShouldReturnOneMigration() throws IOException, DataAccessException {
-        List<Migration> migrations = databaseMigratorDAO.loadMigrationsFromResource(getClass().getResource("fileWithValidMigrationClass.txt"));
+        List<Migration> migrations = databaseMigratorDAO.loadMigrationsFromResource(packageName + "fileWithValidMigrationClass.txt");
 
         assertEquals(1, migrations.size());
         assertEquals(456L, migrations.get(0).getId());
@@ -51,17 +51,17 @@ public class DatabaseMigratorDAOTest extends BaseInMemTransactionTest {
 
     @Test(expected = DataAccessException.class)
     public void loadFileWithInvalidSyntaxShouldFail() throws IOException, DataAccessException {
-        databaseMigratorDAO.loadMigrationsFromResource(getClass().getResource("fileWithInvalidSyntax.txt"));
+        databaseMigratorDAO.loadMigrationsFromResource(packageName + "fileWithInvalidSyntax.txt");
     }
 
     @Test(expected = DataAccessException.class)
     public void loadFileWithInvalidIdSyntaxShouldFail() throws IOException, DataAccessException {
-        databaseMigratorDAO.loadMigrationsFromResource(getClass().getResource("fileWithInvalidIdSyntax.txt"));
+        databaseMigratorDAO.loadMigrationsFromResource(packageName + "fileWithInvalidIdSyntax.txt");
     }
 
     @Test(expected = DataAccessException.class)
     public void loadFileWithDuplicateIdsShouldFail() throws IOException, DataAccessException {
-        databaseMigratorDAO.loadMigrationsFromResource(getClass().getResource("fileWithDuplicateIds.txt"));
+        databaseMigratorDAO.loadMigrationsFromResource(packageName + "fileWithDuplicateIds.txt");
     }
 
     @Test

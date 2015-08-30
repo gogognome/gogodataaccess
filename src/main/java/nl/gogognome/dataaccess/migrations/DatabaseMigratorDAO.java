@@ -9,7 +9,6 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.net.URL;
 import java.sql.SQLException;
 import java.sql.Timestamp;
 import java.util.ArrayList;
@@ -24,14 +23,16 @@ public class DatabaseMigratorDAO extends AbstractDAO {
         this.connectionParameters = connectionParameters;
     }
 
-    public List<Migration> loadMigrationsFromResource(URL url) throws IOException, DataAccessException {
+    public List<Migration> loadMigrationsFromResource(String path) throws IOException, DataAccessException {
         List<Migration> migrations = new ArrayList<>();
+        int index = path.lastIndexOf('/');
+        String pathToDir = index > 0 ? path.substring(0, index + 1) : "/";
 
-        try (InputStream inputStream = url.openStream()) {
+        try (InputStream inputStream = getClass().getResourceAsStream(path)) {
             BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream));
             int lineNr = 1;
             for (String line = reader.readLine(); line != null; line = reader.readLine()) {
-                Migration migration = parseLine(line, lineNr);
+                Migration migration = parseLine(pathToDir, line, lineNr);
                 if (migration != null) {
                     migrations.add(migration);
                 }
@@ -45,7 +46,7 @@ public class DatabaseMigratorDAO extends AbstractDAO {
         return migrations;
     }
 
-    private Migration parseLine(String line, int lineNr) throws DataAccessException {
+    private Migration parseLine(String pathToDir, String line, int lineNr) throws DataAccessException {
         line = line.trim();
         if (line.isEmpty() || line.startsWith("//") || line.startsWith("#") || line.startsWith(";")) {
             return null;
@@ -68,7 +69,7 @@ public class DatabaseMigratorDAO extends AbstractDAO {
         try {
             migration = (Migration) Class.forName(value).getConstructor(long.class).newInstance(id);
         } catch (Exception e) {
-            migration = new ResourceMigration(id, value);
+            migration = new ResourceMigration(id, value.startsWith("/") ? value : pathToDir + value);
         }
 
         return migration;
@@ -114,14 +115,14 @@ public class DatabaseMigratorDAO extends AbstractDAO {
     /**
      * Applies all migrations from the specified url.
      *
-     * @param url location of file that enumerates all migrations
+     * @param path Absolute location of file that enumerates all migrations. The file must be present as resource on the class path.
      * @return the ids of the migrations that have been applied by this method
      * @throws IOException if a problem occurs reading migration file
      * @throws DataAccessException if some problem occurs
      * @throws SQLException if an SQL problem occurs
      */
-    public List<Long> applyMigrationsFromResource(URL url) throws IOException, DataAccessException, SQLException {
-        List<Migration> migrations = loadMigrationsFromResource(url);
+    public List<Long> applyMigrationsFromResource(String path) throws IOException, DataAccessException, SQLException {
+        List<Migration> migrations = loadMigrationsFromResource(path);
         return applyMigrations(migrations);
     }
 }
