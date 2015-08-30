@@ -14,7 +14,7 @@ public class SampleMigration implements Migration {
     }
 
     @Override
-    public void applyChanges() {
+    public void applyChanges(Object... connectionParameters) throws Exception {
         // does nothing
     }
 }

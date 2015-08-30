@@ -6,9 +6,11 @@ import org.junit.Test;
 
 import java.io.IOException;
 import java.sql.SQLException;
+import java.util.Collections;
 import java.util.List;
 
 import static java.util.Arrays.asList;
+import static java.util.Collections.singletonList;
 import static org.junit.Assert.*;
 
 public class DatabaseMigratorDAOTest extends BaseInMemTransactionTest {
@@ -96,8 +98,8 @@ public class DatabaseMigratorDAOTest extends BaseInMemTransactionTest {
     public void applyMigrationsShouldCommitAfterEachMigration() throws SQLException, DataAccessException {
         Migration failingMigration = new DummyMigration(2) {
             @Override
-            public void applyChanges() {
-                throw new RuntimeException("A problem occurred");
+            public void applyChanges(Object... connectionParameters) throws Exception {
+                throw new Exception("A problem occurred");
             }
         };
 
@@ -108,7 +110,7 @@ public class DatabaseMigratorDAOTest extends BaseInMemTransactionTest {
             // ignore expected exception
         }
 
-        assertEquals(asList(1L), databaseMigratorDAO.getMigrationsAppliedToDatabase());
+        assertEquals(singletonList(1L), databaseMigratorDAO.getMigrationsAppliedToDatabase());
     }
 
     private static class DummyMigration implements Migration {
@@ -126,7 +128,7 @@ public class DatabaseMigratorDAOTest extends BaseInMemTransactionTest {
         }
 
         @Override
-        public void applyChanges() {
+        public void applyChanges(Object... connectionParameters) throws Exception {
             applied = true;
         }
 

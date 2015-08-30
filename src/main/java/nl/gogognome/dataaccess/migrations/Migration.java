@@ -4,5 +4,5 @@ public interface Migration {
 
     long getId();
 
-    void applyChanges();
+    void applyChanges(Object[] connectionParameters) throws Exception;
 }

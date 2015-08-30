@@ -13,13 +13,15 @@ import java.net.URL;
 import java.sql.SQLException;
 import java.sql.Timestamp;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 
 public class DatabaseMigratorDAO extends AbstractDAO {
 
+    private Object[] connectionParameters;
+
     public DatabaseMigratorDAO(Object... connectionParameters) {
         super(connectionParameters);
+        this.connectionParameters = connectionParameters;
     }
 
     public List<Migration> loadMigrationsFromResource(URL url) throws IOException, DataAccessException {
@@ -95,7 +97,7 @@ public class DatabaseMigratorDAO extends AbstractDAO {
         for (Migration migration : migrations) {
             if (!appliedMigrations.contains(migration.getId())) {
                 try {
-                    migration.applyChanges();
+                    migration.applyChanges(connectionParameters);
                     insert("_database_migrations", new NameValuePairs().add("id", migration.getId()).add("timestamp", new Timestamp(System.currentTimeMillis())));
                     CurrentTransaction.get().commit();
                     newAppliedMigrations.add(migration.getId());
