@@ -5,8 +5,8 @@ import java.io.Reader;
 import java.math.BigDecimal;
 import java.net.URL;
 import java.sql.*;
-import java.util.Calendar;
-import java.util.Map;
+import java.sql.Date;
+import java.util.*;
 
 class NameValuePairsResultSet implements ResultSet {
 
@@ -176,7 +176,8 @@ class NameValuePairsResultSet implements ResultSet {
 
 	@Override
 	public Date getDate(String columnLabel) throws SQLException {
-		return (Date) nameValuePairs.getValue(columnLabel);
+		java.util.Date date = (java.util.Date) nameValuePairs.getValue(columnLabel);
+		return date != null ? new Date(date.getTime()) : null;
 	}
 
 	@Override
