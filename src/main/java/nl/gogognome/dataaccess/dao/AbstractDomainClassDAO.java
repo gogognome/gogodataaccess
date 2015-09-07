@@ -301,7 +301,7 @@ public abstract class AbstractDomainClassDAO<D> extends AbstractDAO {
      * @throws SQLException if a problem occurs
      * @throws NoRecordFoundException if the object to be deleted does not exist
      */
-    protected void delete(Object id) throws SQLException {
+    public void delete(Object id) throws SQLException {
         delete(buildIdNameValuePairs(id));
     }
 
@@ -313,7 +313,7 @@ public abstract class AbstractDomainClassDAO<D> extends AbstractDAO {
      * @throws SQLException if a problem occurs
      * @throws NoRecordFoundException if the object to be deleted does not exist
      */
-    public void delete(NameValuePairs nameValuePairs) throws SQLException {
+    protected void delete(NameValuePairs nameValuePairs) throws SQLException {
         StringBuilder sb = new StringBuilder(100);
         sb.append("delete from ").append(tableName).append(" where ");
         appendColumns(sb, getCachedPkColumns(), nameValuePairs);
