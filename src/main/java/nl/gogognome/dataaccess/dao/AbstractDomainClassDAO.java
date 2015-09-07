@@ -82,10 +82,8 @@ public abstract class AbstractDomainClassDAO<D> extends AbstractDAO {
      * @throws SQLException
      *             if a problem occurs
      */
-    public boolean exists(long id) throws SQLException {
-        NameValuePairs nameValuePairs = new NameValuePairs();
-        nameValuePairs.add(getPkColumn(), id);
-        return exists(nameValuePairs);
+    public boolean exists(Object id) throws SQLException {
+        return exists(buildIdNameValuePairs(id));
     }
 
     /**
@@ -149,10 +147,8 @@ public abstract class AbstractDomainClassDAO<D> extends AbstractDAO {
      * @throws SQLException
      *             if a problem occurs
      */
-    public D find(long id) throws SQLException {
-        NameValuePairs nameValuePairs = new NameValuePairs();
-        nameValuePairs.add(getPkColumn(), id);
-        return find(nameValuePairs);
+    public D find(Object id) throws SQLException {
+        return find(buildIdNameValuePairs(id));
     }
 
     /**
@@ -164,7 +160,7 @@ public abstract class AbstractDomainClassDAO<D> extends AbstractDAO {
      * @throws SQLException
      *             if the domain object does not exist or if a problem occurs
      */
-    public D get(long id) throws SQLException {
+    public D get(Object id) throws SQLException {
         D object = find(id);
         if (object == null) {
             throw new NoRecordFoundException("Table " + tableName + " has no record with id " + id);
@@ -305,10 +301,8 @@ public abstract class AbstractDomainClassDAO<D> extends AbstractDAO {
      * @throws SQLException if a problem occurs
      * @throws NoRecordFoundException if the object to be deleted does not exist
      */
-    protected void delete(long id) throws SQLException {
-        NameValuePairs nameValuePairs = new NameValuePairs();
-        nameValuePairs.add(getPkColumn(), id);
-        delete(nameValuePairs);
+    protected void delete(Object id) throws SQLException {
+        delete(buildIdNameValuePairs(id));
     }
 
     /**
@@ -470,6 +464,29 @@ public abstract class AbstractDomainClassDAO<D> extends AbstractDAO {
                 throw new SQLException("Could not count the number of rows in " + tableName + "!");
             }
         }
+    }
+
+    /**
+     * Converts an id object to a NameValuePairs instance. Override this method if the default implementation
+     * does not fit your requirements.
+     *
+     * @param id id to be converted
+     * @return a NameValuePairs.
+     */
+    protected NameValuePairs buildIdNameValuePairs(Object id) throws SQLException {
+        if (id instanceof Integer) {
+            return new NameValuePairs().add(getPkColumn(), (Integer) id);
+        }
+        if (id instanceof Long) {
+            return new NameValuePairs().add(getPkColumn(), (Long) id);
+        }
+        if (id instanceof String) {
+            return new NameValuePairs().add(getPkColumn(), (String) id);
+        }
+        if (id == null) {
+            throw new NullPointerException("id must not be null");
+        }
+        throw new IllegalArgumentException("unsupported class " + id.getClass() + " for id. Override this method in your DAO to fix this problem.");
     }
 
     /**
