@@ -7,13 +7,12 @@ Gogo data access, a simple data access library for Java
 * The transaction mechanism can be extened for non-JDBC transactions too.
 * A simple DAO (Data Access Object) base class to write your own DAOs.
 * A domain object DAO base class to quickly implement CRUD operations for your domain objects.
+* Database migrations using SQL scripts and/or Java classes.
 
 ## What does gogo data access not offer?
 
 * This library is not an ORM like Hibernate. The DAO base classes make it very easy to get ORM like features, but you still
 have to do a little more work than Hibernate.
-* Creating migration scripts. This library offers classes to run scripts, but you will have to manage migrations yourself.
-Or use a library like Liquibase to manage your transactions if you don't mind learning another language to write migration scripts.
 
 ## Why writing another library if there is Hibernate or some other JPA implementation?
 
@@ -133,6 +132,7 @@ By just implementing these two methods your DAO is basically finished. It inheri
     get(123L) // get author with id 123. Throws an exception if it does not exist
     delete(123L) // deletes author with id 123. Throws an exception if it does not exist
     findAll() // get a list with all authors
+    findAll("name") // get a list with all authors sorted on name ascendingly
     findAllWhere("name like 'J%'") // get a list of all authors whose name start with a J
     find(nameValuePairs) // get a list of all authors with matching name value pairs
 
@@ -178,3 +178,34 @@ Here is example code that shows the power of `AbstractDAO`:
     }
 
 Check out the `AbstractDAOTest` for more examples of this class.
+
+### Database migrations
+
+Database migrations are configured in a text file that looks like this:
+
+    0: createInitialDatabase.sql
+    10: addExtraColumnToAuthor.sql
+    20: nl.gogognome.books.FillBooksWithDataFromInternet
+    
+This configuration file and all SQL files and classes it refers to must be part of the classpath of the application.
+SQL files can have an absolute path (e.g. "/nl.gogognome/addExtraColumnToAuthor.sql") or relative path
+(e.g. "addExtraColumnToAuthor.sql").
+
+Each line consists of a migration number followed by the name of a SQL file or a fully-qualified class name.
+There is only one requirement about the migration numbers: they must be unique. They do not have to be consecutive.
+They do not have to be in order in the configuration file. However, they will be executed in ascending order of migration number.
+
+If you want to find out which migrations have already been applied to the database use this:
+
+    DatabaseMigrationDAO databaseMigrationDAO = new DatabaseMigratorDAO(connectionParameters);
+    List<Migration> migrations = databaseMigratorDAO.loadMigrationsFromResource("migrations.txt");
+    
+If you just want to run all missing migrations to the database use this:
+
+    List<Long> appliedMigrations = databaseMigrationDAO.applyMigrationsFromResource("migrations.txt");
+
+You can check which migrations have actually been applied by checking `appliedMigrations`.
+
+Java classes referred to by the configuration file must implement the `Migration` interface and implement a public
+constructor that accepts a single `long` as parameter, which is the id of the migration. This allows one Java class
+to be used with different ids in the configuration file.
