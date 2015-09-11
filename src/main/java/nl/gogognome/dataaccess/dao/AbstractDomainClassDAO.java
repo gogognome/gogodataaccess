@@ -321,7 +321,7 @@ public abstract class AbstractDomainClassDAO<D> extends AbstractDAO {
             setColumnValues(statement, 1, getCachedPkColumns(), nameValuePairs);
             int nrOfRowsDeleted = statement.executeUpdate();
             if (nrOfRowsDeleted != 1) {
-                throw new NoRecordFoundException("Table " + tableName + "has no record with id " + nameValuePairs);
+                throw new NoRecordFoundException("Table " + tableName + " has no record with id " + nameValuePairs);
             }
         }
     }
