@@ -15,10 +15,10 @@ public class RequireTransaction {
 
     public static <T> T withResult(RunnableWithReturnValue<T> runnable) throws DataAccessException {
         T result = null;
-        boolean createdNewTransaction = !CurrentTransaction.hasTransaction();
+        boolean runInsideExistingTransaction = CurrentTransaction.hasTransaction();
         boolean commitOnClose = false;
         try {
-            if (createdNewTransaction) {
+            if (!runInsideExistingTransaction) {
                 CurrentTransaction.create();
             }
             result = runnable.run();
@@ -26,7 +26,7 @@ public class RequireTransaction {
         } catch (Exception e) {
             handleException(e);
         } finally {
-            if (createdNewTransaction) {
+            if (!runInsideExistingTransaction) {
                 CurrentTransaction.close(commitOnClose);
             }
         }
