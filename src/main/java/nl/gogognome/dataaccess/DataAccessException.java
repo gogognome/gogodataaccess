@@ -1,6 +1,6 @@
 package nl.gogognome.dataaccess;
 
-public class DataAccessException extends Exception {
+public class DataAccessException extends RuntimeException {
     public DataAccessException() {
     }
 

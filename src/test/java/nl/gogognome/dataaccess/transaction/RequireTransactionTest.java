@@ -27,26 +27,26 @@ public class RequireTransactionTest {
     }
 
     @Test
-    public void withoutResultShouldBeRunInsideTransaction() throws DataAccessException {
-        RequireTransaction.withoutResult(() -> calledMethods.append("run;"));
+    public void withoutResultShouldBeRunInsideTransaction() {
+        RequireTransaction.runs(() -> calledMethods.append("runs;"));
 
-        assertEquals("transaction creation;run;commit;close;", calledMethods.toString());
+        assertEquals("transaction creation;runs;commit;close;", calledMethods.toString());
     }
 
 
     @Test
-    public void nestedwithoutResultShouldBeRunInsideNestedTransactions() throws DataAccessException {
-        RequireTransaction.withoutResult(() -> {
-            RequireTransaction.withoutResult(() -> calledMethods.append("run;"));
+    public void nestedwithoutResultShouldBeRunInsideNestedTransactions() {
+        RequireTransaction.runs(() -> {
+            RequireTransaction.runs(() -> calledMethods.append("runs;"));
         });
 
-        assertEquals("transaction creation;run;commit;close;", calledMethods.toString());
+        assertEquals("transaction creation;runs;commit;close;", calledMethods.toString());
     }
 
     @Test
-    public void withoutResultThatThrowsExceptionShouldBeRunInsideTransactionThatIsRolledBack() throws DataAccessException {
+    public void withoutResultThatThrowsExceptionShouldBeRunInsideTransactionThatIsRolledBack() {
         try {
-            RequireTransaction.withoutResult(() -> {
+            RequireTransaction.runs(() -> {
                 calledMethods.append("throw exception;");
                 throw new DataAccessException();
             });
@@ -58,33 +58,31 @@ public class RequireTransactionTest {
     }
 
     @Test
-    public void withResultShouldBeRunInsideTransaction() throws DataAccessException {
-        String result = RequireTransaction.withResult(() -> {
-            calledMethods.append("run;");
+    public void withResultShouldBeRunInsideTransaction() {
+        String result = RequireTransaction.returns(() -> {
+            calledMethods.append("runs;");
             return "test";
         });
 
         assertEquals("test", result);
-        assertEquals("transaction creation;run;commit;close;", calledMethods.toString());
+        assertEquals("transaction creation;runs;commit;close;", calledMethods.toString());
     }
 
     @Test
-    public void nestedWithResultShouldBeRunInsideNestedTransactions() throws DataAccessException {
-        String result = RequireTransaction.withResult(() -> {
-            return RequireTransaction.withResult(() -> {
-                calledMethods.append("run;");
-                return "test";
-            });
-        });
+    public void nestedWithResultShouldBeRunInsideNestedTransactions() {
+        String result = RequireTransaction.returns(() -> RequireTransaction.returns(() -> {
+            calledMethods.append("runs;");
+            return "test";
+        }));
 
         assertEquals("test", result);
-        assertEquals("transaction creation;run;commit;close;", calledMethods.toString());
+        assertEquals("transaction creation;runs;commit;close;", calledMethods.toString());
     }
 
     @Test
-    public void withResultThatThrowsExceptionShouldBeRunInsideTransactionThatIsRolledBack() throws DataAccessException {
+    public void withResultThatThrowsExceptionShouldBeRunInsideTransactionThatIsRolledBack() {
         try {
-            RequireTransaction.withResult(() -> {
+            RequireTransaction.returns(() -> {
                 calledMethods.append("throw exception;");
                 throw new DataAccessException();
             });
@@ -103,17 +101,17 @@ public class RequireTransactionTest {
         }
 
         @Override
-        public void commit() throws DataAccessException {
+        public void commit() {
             calledMethods.append("commit;");
         }
 
         @Override
-        public void rollback() throws DataAccessException {
+        public void rollback() {
             calledMethods.append("rollback;");
         }
 
         @Override
-        public void close() throws DataAccessException {
+        public void close() {
             calledMethods.append("close;");
         }
 
