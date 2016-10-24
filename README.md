@@ -1,4 +1,4 @@
-# gogodataaccess
+# Gogo Data Access
 Gogo data access, a simple data access library for Java
 
 ## What does gogo data access offer?
