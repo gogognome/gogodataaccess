@@ -44,8 +44,8 @@ public class CurrentTransaction {
     private void closeCurrentTransaction() throws DataAccessException {
         int lastTransactionPoolIndex = transactions.size() - 1;
         Transaction transaction = transactions.get(lastTransactionPoolIndex);
-        transaction.close();
         transactions.remove(lastTransactionPoolIndex);
+        transaction.close();
     }
 
     public static Transaction get() throws RuntimeException {

@@ -36,9 +36,7 @@ public class RequireTransactionTest {
 
     @Test
     public void nestedwithoutResultShouldBeRunInsideNestedTransactions() {
-        RequireTransaction.runs(() -> {
-            RequireTransaction.runs(() -> calledMethods.append("runs;"));
-        });
+        RequireTransaction.runs(() -> RequireTransaction.runs(() -> calledMethods.append("runs;")));
 
         assertEquals("transaction creation;runs;commit;close;", calledMethods.toString());
     }
@@ -92,6 +90,21 @@ public class RequireTransactionTest {
         }
 
         assertEquals("transaction creation;throw exception;rollback;close;", calledMethods.toString());
+    }
+
+    @Test
+    public void createNewTransactionWhileClosingAnotherTransactionShouldSucceed() {
+        CurrentTransaction.transactionCreator = () -> new TransactionMock() {
+            @Override
+            public void close() {
+                super.close();
+                if (calledMethods.indexOf("runs2") == -1) {
+                    RequireTransaction.runs(() -> calledMethods.append("runs2;"));
+                }
+            }
+        };
+        RequireTransaction.runs(() -> calledMethods.append("runs1;"));
+        assertEquals("transaction creation;runs1;commit;close;transaction creation;runs2;commit;close;", calledMethods.toString());
     }
 
     class TransactionMock implements Transaction {
