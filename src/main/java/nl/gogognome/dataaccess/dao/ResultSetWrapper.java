@@ -6,6 +6,7 @@ import java.math.BigDecimal;
 import java.net.URL;
 import java.sql.*;
 import java.sql.Date;
+import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.util.*;
@@ -1032,6 +1033,14 @@ public class ResultSetWrapper implements ResultSet {
         return toLocalDateTime(wrappedResultSet.getTimestamp(columnIndex));
     }
 
+    public Instant getInstant(String columnLabel) throws SQLException {
+        return toInstant(wrappedResultSet.getTimestamp(columnLabel));
+    }
+
+    public Instant getInstant(int columnIndex) throws SQLException {
+        return toInstant(wrappedResultSet.getTimestamp(columnIndex));
+    }
+
     public <E extends Enum<E>> E getEnum(Class<E> enumClass, String columnLabel) throws SQLException {
         return toEnum(enumClass, getString(columnLabel));
     }
@@ -1053,6 +1062,13 @@ public class ResultSetWrapper implements ResultSet {
             return null;
         }
         return LocalDateTime.ofInstant(date.toInstant(), ZoneId.systemDefault());
+    }
+
+    public static Instant toInstant(java.util.Date date) {
+        if (date == null) {
+            return null;
+        }
+        return date.toInstant();
     }
 
 }
