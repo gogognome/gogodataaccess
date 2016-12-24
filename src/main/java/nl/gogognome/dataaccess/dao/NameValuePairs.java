@@ -51,6 +51,14 @@ public class NameValuePairs implements Iterable<NameValuePair> {
         return add(name, Timestamp.class, timestamp);
     }
 
+    public NameValuePairs add(String name, Instant instant) {
+        Timestamp timestamp = null;
+        if (instant != null) {
+            timestamp = new Timestamp(instant.toEpochMilli());
+        }
+        return add(name, Timestamp.class, timestamp);
+    }
+
     public NameValuePairs add(String name, int value) {
         add(name, Integer.class, value);
         return this;
