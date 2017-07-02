@@ -81,6 +81,8 @@ public class DAOUtil {
                 sqlType = Types.NUMERIC;
             } else if (type.equals(Date.class)) {
                 sqlType = Types.TIMESTAMP;
+            } else if (type.equals(byte[].class)) {
+                sqlType = Types.BINARY;
             } else {
                 throw new SQLException("Value of type " + type + " is not supported.");
             }
@@ -104,6 +106,8 @@ public class DAOUtil {
                 statement.setInt(index, (Boolean) value ? 1 : 0);
             } else if (type.equals(Date.class)) {
                 statement.setDate(index, new java.sql.Date(((Date) value).getTime()));
+            } else if (type.equals(byte[].class)) {
+                statement.setBinary(index, (byte[]) value);
             } else {
                 throw new SQLException("Value of type " + type + " is not supported.");
             }

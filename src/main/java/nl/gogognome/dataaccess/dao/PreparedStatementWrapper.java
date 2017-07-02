@@ -154,10 +154,16 @@ public class PreparedStatementWrapper implements AutoCloseable {
         wrappedStatement.setBigDecimal(parameterIndex, x);
     }
 
+    public void setBinary(int parameterIndex, byte[] bytes) throws SQLException {
+        addParameter(parameterIndex, bytes);
+        wrappedStatement.setBytes(parameterIndex, bytes);
+    }
+
     public void setDate(int parameterIndex, Date x) throws SQLException {
         addParameter(parameterIndex, x);
         wrappedStatement.setDate(parameterIndex, x);
     }
+
     public void setDouble(int parameterIndex, double x) throws SQLException {
         addParameter(parameterIndex, x);
         wrappedStatement.setDouble(parameterIndex, x);

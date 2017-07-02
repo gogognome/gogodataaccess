@@ -171,7 +171,7 @@ class NameValuePairsResultSet implements ResultSet {
 
 	@Override
 	public byte[] getBytes(String columnLabel) throws SQLException {
-		throw new SQLException("Not supported");
+		return (byte[]) nameValuePairs.getNameValuePair(columnLabel).getValue();
 	}
 
 	@Override

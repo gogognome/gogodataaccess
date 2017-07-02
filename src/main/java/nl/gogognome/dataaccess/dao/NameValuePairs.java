@@ -99,6 +99,11 @@ public class NameValuePairs implements Iterable<NameValuePair> {
         return this;
     }
 
+    public NameValuePairs add(String name, byte[] bytes) {
+        add(name, byte[].class, bytes);
+        return this;
+    }
+
     public NameValuePairs add(String name, Object... values) {
         List<String> strings = new ArrayList<>(values.length);
         for (Object value : values) {
