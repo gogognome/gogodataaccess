@@ -374,8 +374,21 @@ public abstract class AbstractDomainClassDAO<D> extends AbstractDAO {
                 throw new SQLException("Number of primary key columns should be 1 but was " + getCachedPkColumns().size());
             }
             String pkColumn = getCachedPkColumns().get(0);
+            NameValuePair pkColumnNameValuePair = nameValuePairs.getNameValuePair(pkColumn);
             nameValuePairs.remove(pkColumn);
-            nameValuePairs.add(pkColumn, getNextLongFromSequence(sequenceName));
+            long generatedId = getNextLongFromSequence(sequenceName);
+
+            Class<?> requestedType = Long.class;
+            if (pkColumnNameValuePair != null) {
+                requestedType = pkColumnNameValuePair.getType();
+            }
+            if (requestedType.equals(String.class)) {
+                nameValuePairs.add(pkColumn, Long.toString(generatedId));
+            } else if (requestedType.equals(Integer.class)) {
+                nameValuePairs.add(pkColumn, (int) generatedId);
+            } else {
+                nameValuePairs.add(pkColumn, generatedId);
+            }
         }
     }
 
