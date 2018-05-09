@@ -197,7 +197,7 @@ They do not have to be in order in the configuration file. However, they will be
 
 If you want to find out which migrations have already been applied to the database use this:
 
-    DatabaseMigrationDAO databaseMigrationDAO = new DatabaseMigratorDAO(connectionParameters);
+    DatabaseMigratorDAO databaseMigratorDAO = new DatabaseMigratorDAO(connectionParameters);
     List<Migration> migrations = databaseMigratorDAO.loadMigrationsFromResource("migrations.txt");
     
 If you just want to run all missing migrations to the database use this:
