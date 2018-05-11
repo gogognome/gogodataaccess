@@ -1,7 +1,7 @@
 # Gogo Data Access
 Gogo data access, a simple data access library for Java
 
-[![Maven Central](https://maven-badges.herokuapp.com/maven-central/nl.gogognome/gogodataaccess/badge.svg?style=plastic)](https://maven-badges.herokuapp.com/maven-central/nl.gogognome/gogotdataaccess)
+[![Maven Central](https://maven-badges.herokuapp.com/maven-central/nl.gogognome/gogodataaccess/badge.svg?style=plastic)](https://maven-badges.herokuapp.com/maven-central/nl.gogognome/gogodataaccess)
 
 ## What does gogo data access offer?
 
