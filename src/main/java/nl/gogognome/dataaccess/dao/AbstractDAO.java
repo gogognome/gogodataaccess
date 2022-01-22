@@ -17,7 +17,7 @@ import java.util.*;
  */
 public class AbstractDAO {
 
-    private Object[] connectionParameters;
+    private final Object[] connectionParameters;
 
     /**
      * Constructor.
@@ -93,7 +93,7 @@ public class AbstractDAO {
     }
 
     protected long getNextLongFromSequence(String sequenceName) throws SQLException {
-        return execute("select " + sequenceName + ".nextval from DUAL").getFirst(result -> result.getLong(1));
+        return execute("select next value for " + sequenceName).getFirst(result -> result.getLong(1));
     }
 
     protected QueryBuilder execute(String sqlStatement, Object... parameters) {

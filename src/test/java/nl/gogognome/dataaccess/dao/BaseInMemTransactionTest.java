@@ -18,7 +18,7 @@ public class BaseInMemTransactionTest {
     @Before
     public void createInMemoryDatabase() throws DataAccessException, SQLException {
         JdbcDataSource dataSource = new JdbcDataSource();
-        dataSource.setURL("jdbc:h2:mem:" + getClass().getSimpleName() + "_" + uniqueId + ";MVCC=TRUE");
+        dataSource.setURL("jdbc:h2:mem:" + getClass().getSimpleName() + "_" + uniqueId);
         uniqueId++;
 
         CompositeDatasourceTransaction.registerDataSource("test", dataSource);
